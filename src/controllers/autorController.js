@@ -2,16 +2,16 @@ import mongoose from 'mongoose'
 import { autor } from '../models/Autor.js'
 
 class AutorController {
-  static async ListarAutores (req, res) {
+  static async ListarAutores (req, res, next) {
     try {
       const listaAutores = await autor.find({})
       res.status(200).json(listaAutores)
     } catch (error) {
-      res.status(500).json({ message: `${error.message} - falha na requisição` })
+      next(error)
     }
   }
 
-  static async ListarAutor (req, res) {
+  static async ListarAutor (req, res, next) {
     try {
       const id = req.params.id
       const autorEncontrado = await autor.findById(id)
@@ -21,15 +21,11 @@ class AutorController {
         res.status(404).json({ message: "Id do Autor não localizado." })
       }
     } catch (error) {
-      if (error instanceof mongoose.Error.CastError ) {
-        res.status(400).json({ message: "Um ou mais dados informados são inválidos." })
-      } else {
-        res.status(500).json({message: "Erro interno de servidor."})
-      }
+      next(error)
     }
   }
 
-  static async CadastrarAutor (req, res) {
+  static async CadastrarAutor (req, res, next) {
     try {
       const novoAutor = await autor.create(req.body)
       res.status(201).json({
@@ -37,27 +33,27 @@ class AutorController {
         autor: novoAutor
       })
     } catch (error) {
-      res.status(500).json({ message: `${error.message} - falha ao cadastrar autor` })
+      next(error)
     }
   }
 
-  static async AtualizarAutor (req, res) {
+  static async AtualizarAutor (req, res, next) {
     try {
       const id = req.params.id
       await autor.findByIdAndUpdate(id, req.body)
       res.status(200).json({ message: 'Autor atualizado com sucesso!' })
     } catch (error) {
-      res.status(500).json({ message: `${error.message} - falha na atualização do autor` })
+      next(error)
     }
   }
 
-  static async DeletarAutor (req, res) {
+  static async DeletarAutor (req, res, next) {
     try {
       const id = req.params.id
       await autor.findByIdAndDelete(id)
       res.status(200).json({ message: 'Autor deletado com sucesso!' })
     } catch (error) {
-      res.status(500).json({ message: `${error.message} - falha ao deletar autor!` })
+      next(error)
     }
   }
 }
