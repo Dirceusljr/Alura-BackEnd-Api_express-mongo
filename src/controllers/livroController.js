@@ -1,10 +1,11 @@
-import { autor } from '../models/Autor.js'
-import livro from '../models/Livro.js'
+import Livro from '../models/Livro.js'
 
 class LivroController {
   static async ListarLivros (req, res, next) {
     try {
-      const listaLivros = await livro.find({})
+      const listaLivros = await Livro.find({})
+        .populate('autor')
+        .exec()
       res.status(200).json(listaLivros)
     } catch (error) {
       next(error)
@@ -14,7 +15,9 @@ class LivroController {
   static async ListarLivro (req, res, next) {
     try {
       const id = req.params.id
-      const livroEncontrado = await livro.findById(id)
+      const livroEncontrado = await Livro.findById(id)
+        .populate('autor', 'nome')
+        .exec()
       res.status(200).json(livroEncontrado)
     } catch (error) {
       next(error)
@@ -22,24 +25,20 @@ class LivroController {
   }
 
   static async CadastrarLivro (req, res, next) {
-    const novoLivro = req.body
     try {
-      const autorEncontrado = await autor.findById(novoLivro.autor)
-      const livroCompleto = { ...novoLivro, autor: { ...autorEncontrado._doc } }
-      const livroCriado = await livro.create(livroCompleto)
-      res.status(201).json({
-        message: 'Livro cadastrado com sucesso!',
-        livro: livroCriado
-      })
-    } catch (error) {
-      next(error)
+      const novoLivro = new Livro(req.body)
+      const livroResultado = await novoLivro.save()
+
+      res.status(201).send(livroResultado.toJSON())
+    } catch (erro) {
+      next(erro)
     }
   }
 
   static async AtualizarLivro (req, res, next) {
     try {
       const id = req.params.id
-      await livro.findByIdAndUpdate(id, req.body)
+      await Livro.findByIdAndUpdate(id, req.body)
       res.status(200).json({ message: 'Livro atualizado com sucesso!' })
     } catch (error) {
       next(error)
@@ -49,7 +48,7 @@ class LivroController {
   static async DeletarLivro (req, res, next) {
     try {
       const id = req.params.id
-      await livro.findByIdAndDelete(id)
+      await Livro.findByIdAndDelete(id)
       res.status(200).json({ message: 'Livro deletado com sucesso!' })
     } catch (error) {
       next(error)
@@ -59,7 +58,7 @@ class LivroController {
   static async ListarLivrosPorEditora (req, res, next) {
     const editora = req.query.editora
     try {
-      const livrosPorEditora = await livro.find({ editora })
+      const livrosPorEditora = await Livro.find({ editora })
       res.status(200).json(livrosPorEditora)
     } catch (error) {
       next(error)
