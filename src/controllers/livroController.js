@@ -20,7 +20,6 @@ class LivroController {
     try {
       const id = req.params.id
       const livroEncontrado = await Livro.findById(id)
-        .populate('autor', 'nome')
         .exec()
       if (livroEncontrado !== null) {
         res.status(200).json(livroEncontrado)
@@ -78,7 +77,6 @@ class LivroController {
       if (busca !== null) {
         const livrosFiltrados = Livro
         .find(busca)
-        .populate('autor')
 
         req.resultado = livrosFiltrados
         
