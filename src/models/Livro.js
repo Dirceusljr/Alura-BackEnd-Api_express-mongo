@@ -12,10 +12,11 @@ const LivroSchema = new mongoose.Schema({
     required: [true, 'O campo editora é obrigatório.'],
     enum: {
       values: ['Clássicos', 'Fantasia'],
-      message: 'A editora {VALUE} não é permitida.'}
+      message: 'A editora {VALUE} não é permitida.'
+    }
   },
   preco: { type: Number },
-  paginas: { 
+  paginas: {
     type: Number,
     validate: {
       validator: (valor) => {
@@ -30,7 +31,7 @@ const LivroSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'autores',
     required: [true, 'O autor é obrigatório.'],
-    autopopulate: {select: 'nome'}
+    autopopulate: { select: 'nome' }
   }
 }, { versionKey: false })
 

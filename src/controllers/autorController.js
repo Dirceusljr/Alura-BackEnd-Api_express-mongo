@@ -8,7 +8,6 @@ class AutorController {
 
       req.resultado = listaAutores
       next()
-
     } catch (error) {
       next(error)
     }

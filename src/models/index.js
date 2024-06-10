@@ -1,4 +1,4 @@
-import "./validadorGlobal.js"
+import './validadorGlobal.js'
 import { Autor } from './Autor.js'
 import Livro from './Livro.js'
 

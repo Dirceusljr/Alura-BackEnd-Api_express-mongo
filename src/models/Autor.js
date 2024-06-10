@@ -11,4 +11,4 @@ const AutorSchema = new mongoose.Schema({
 
 const Autor = mongoose.model('autores', AutorSchema)
 
-export { Autor , AutorSchema }
+export { Autor, AutorSchema }

@@ -9,11 +9,11 @@ function manipuladorDeErros (erro, req, res, next) {
     new RequisicaoIncorreta().enviarResposta(res)
   } else if (erro instanceof mongoose.Error.ValidationError) {
     new ErroValidacao(erro).enviarResposta(res)
-} else if (erro instanceof NaoEncontrada) {
+  } else if (erro instanceof NaoEncontrada) {
     erro.enviarResposta(res)
-} else {
+  } else {
     new ErroBase().enviarResposta(res)
-}
+  }
 }
 
 export default manipuladorDeErros
