@@ -1,8 +1,8 @@
 import NaoEncontrada from '../erros/NaoEncontrada.js'
-import { Livro } from '../models/index.js'
+import { Autor, Livro } from '../models/index.js'
 
 class LivroController {
-  static async ListarLivros (req, res, next) {
+  static async ListarLivros(req, res, next) {
     try {
       const listaLivros = await Livro.find({})
         .populate('autor')
@@ -13,7 +13,7 @@ class LivroController {
     }
   }
 
-  static async ListarLivro (req, res, next) {
+  static async ListarLivro(req, res, next) {
     try {
       const id = req.params.id
       const livroEncontrado = await Livro.findById(id)
@@ -29,7 +29,7 @@ class LivroController {
     }
   }
 
-  static async CadastrarLivro (req, res, next) {
+  static async CadastrarLivro(req, res, next) {
     try {
       const novoLivro = new Livro(req.body)
       const livroResultado = await novoLivro.save()
@@ -39,25 +39,25 @@ class LivroController {
     }
   }
 
-  static async AtualizarLivro (req, res, next) {
+  static async AtualizarLivro(req, res, next) {
     try {
       const id = req.params.id
       const livroLocalizado = await Livro.findByIdAndUpdate(id, req.body)
       if (livroLocalizado !== null) {
         res.status(200).json({ message: 'Livro atualizado com sucesso!' })
       } else {
-        next (new NaoEncontrada('Id do livro não localizado.'))
+        next(new NaoEncontrada('Id do livro não localizado.'))
       }
     } catch (error) {
       next(error)
     }
   }
 
-  static async DeletarLivro (req, res, next) {
+  static async DeletarLivro(req, res, next) {
     try {
       const id = req.params.id
       const livroLocalizado = await Livro.findByIdAndDelete(id)
-      if ( livroLocalizado !== null) {
+      if (livroLocalizado !== null) {
         res.status(200).json({ message: 'Livro deletado com sucesso!' })
       } else {
         next(new NaoEncontrada('Id do livro não localizado.'))
@@ -67,8 +67,24 @@ class LivroController {
     }
   }
 
-  static async ListarLivrosPorFiltro (req, res, next) {
-    const { editora, titulo } = req.query
+  static async ListarLivrosPorFiltro(req, res, next) {
+
+    try {
+      const busca = await processaBusca(req.query)
+
+      const livrosFiltrados = await Livro
+      .find(busca)
+      .populate('autor')
+      
+      res.status(200).json(livrosFiltrados)
+    } catch (error) {
+      next(error)
+    }
+  }
+}
+
+async function  processaBusca(parametros) {
+  const { editora, titulo, minPaginas, maxPaginas, nomeAutor } = parametros
 
     //Solução com java para pesquisa de termos
     // const regex = new RegExp(titulo, 'i')
@@ -78,13 +94,18 @@ class LivroController {
     // if (titulo) busca.titulo = regex
     if (titulo) busca.titulo = {$regex: titulo, $options: 'i'}
 
-    try {
-      const livrosFiltrados = await Livro.find(busca)
-      res.status(200).json(livrosFiltrados)
-    } catch (error) {
-      next(error)
+    // Para habilitar os métodos de busca com gte e lte, cria-se um objeto vazio
+    if (minPaginas || maxPaginas) busca.paginas = {}
+    if (minPaginas) busca.paginas.$gte = parseInt(minPaginas)
+    if (maxPaginas) busca.paginas.$lte = parseInt(maxPaginas)
+
+    if(nomeAutor) {
+      const autor = await Autor.findOne({ nome: nomeAutor})
+      const autorId = autor._id
+      busca.autor = autorId
     }
-  }
+
+    return busca
 }
 
 export default LivroController
