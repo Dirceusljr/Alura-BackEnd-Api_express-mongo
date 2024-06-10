@@ -72,11 +72,16 @@ class LivroController {
     try {
       const busca = await processaBusca(req.query)
 
-      const livrosFiltrados = await Livro
-      .find(busca)
-      .populate('autor')
-      
-      res.status(200).json(livrosFiltrados)
+      if (busca !== null) {
+        const livrosFiltrados = await Livro
+        .find(busca)
+        .populate('autor')
+  
+        res.status(200).json(livrosFiltrados)
+      } else {
+        res.status(200).send([])
+      }
+
     } catch (error) {
       next(error)
     }
@@ -89,7 +94,8 @@ async function  processaBusca(parametros) {
     //Solução com java para pesquisa de termos
     // const regex = new RegExp(titulo, 'i')
 
-    const busca = {};
+    let busca = {};
+
     if (editora) busca.editora = editora
     // if (titulo) busca.titulo = regex
     if (titulo) busca.titulo = {$regex: titulo, $options: 'i'}
@@ -101,8 +107,12 @@ async function  processaBusca(parametros) {
 
     if(nomeAutor) {
       const autor = await Autor.findOne({ nome: nomeAutor})
-      const autorId = autor._id
-      busca.autor = autorId
+
+      if (autor !== null) {
+        busca.autor = autor._id
+      } else {
+        busca = null;
+      }
     }
 
     return busca
