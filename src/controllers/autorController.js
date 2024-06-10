@@ -4,8 +4,11 @@ import { Autor } from '../models/index.js'
 class AutorController {
   static async ListarAutores (req, res, next) {
     try {
-      const listaAutores = await Autor.find({})
-      res.status(200).json(listaAutores)
+      const listaAutores = Autor.find({})
+
+      req.resultado = listaAutores
+      next()
+
     } catch (error) {
       next(error)
     }
