@@ -69,9 +69,14 @@ class LivroController {
 
   static async ListarLivrosPorFiltro (req, res, next) {
     const { editora, titulo } = req.query
+
+    //Solução com java para pesquisa de termos
+    // const regex = new RegExp(titulo, 'i')
+
     const busca = {};
     if (editora) busca.editora = editora
-    if (titulo) busca.titulo = titulo
+    // if (titulo) busca.titulo = regex
+    if (titulo) busca.titulo = {$regex: titulo, $options: 'i'}
 
     try {
       const livrosFiltrados = await Livro.find(busca)
